@@ -10,10 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using IssuesToWorkItems.Models;
+using SyncGitHubIssuesToWorkItems.Models;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace IssuesToWorkItems
+namespace SyncGitHubIssuesToWorkItems
 {
     public class Startup
     {

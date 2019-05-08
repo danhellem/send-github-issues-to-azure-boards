@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace IssuesToWorkItems.Models
+namespace SyncGitHubIssuesToWorkItems.Models
 {
     public class AppSettings
     {

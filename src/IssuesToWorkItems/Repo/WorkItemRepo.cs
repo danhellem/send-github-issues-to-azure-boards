@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using IssuesToWorkItems.Models;
-using IssuesToWorkItems.ViewModels;
+using SyncGitHubIssuesToWorkItems.Models;
+using SyncGitHubIssuesToWorkItems.ViewModels;
 
 namespace IssuesToWorkItems.Repo
 {
@@ -23,7 +23,7 @@ namespace IssuesToWorkItems.Repo
             _appSettings = appSettings;
         }
 
-        public WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubIssuePayload vm)
+        public WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm)
         {
             string pat = vm.pat;
             Uri baseUri = new Uri("https://dev.azure.com/" + vm.organization);
@@ -36,7 +36,7 @@ namespace IssuesToWorkItems.Repo
 
             Wiql wiql = new Wiql()
             {
-                Query = "SELELCT [System.Id] FROM workitems WHERE [System.Tags] CONTAINS 'GitHub Issues #" + vm.id.ToString() + "'"
+                Query = "SELELCT [System.Id] FROM workitems [System.TeamProject] = @project AND [System.Title] CONTAINS WORDS '(GitHub Issue #114)' AND [System.Tags] CONTAINS 'GitHub Issue'"
             };
 
             try

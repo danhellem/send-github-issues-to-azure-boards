@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace IssuesToWorkItems.Models
+namespace SyncGitHubIssuesToWorkItems.Models
 {
     public class StandardResponseObjectResult : ObjectResult
     {
