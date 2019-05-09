@@ -7,8 +7,12 @@ namespace SyncGitHubIssuesToWorkItems.Models
 {
     public class AppSettings
     {
-        public string GitHubSecret { get; set; }
-        public string GitHubToken { get; set; }
-        public string GitHubAppName { get; set; }
+        public string GitHub_Secret { get; set; }
+        public string GitHub_Token { get; set; }
+        public string GitHub_AppName { get; set; }
+        public string ADO_Pat { get; set; }
+        public string ADO_Org { get; set; }
+        public string ADO_Project { get; set; }
+        public string ADO_DefaultWIT { get; set; }
     }
 }

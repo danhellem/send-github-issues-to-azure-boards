@@ -20,6 +20,8 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
     [ApiController]
     public class GitHubIssuesController : ControllerBase
     {
+        private bool _ignoreAuthCheck = true;
+
         private IOptions<AppSettings> _appSettings;
         private IGitHubAuthentication _gitHubAuthentication;
 
@@ -31,14 +33,14 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
 
         // POST api/values
         [HttpPost]
-        public async Task<ActionResult> PostIssue([FromBody] JObject body)
+        public ActionResult PostIssue([FromBody] JObject body)
         {
             ApiResponseViewModel response = new ApiResponseViewModel();
 
             Request.Headers.TryGetValue("X-Hub-Signature", out StringValues signature);
 
             //check for empty signature
-            if (string.IsNullOrEmpty(signature))
+            if ((! _ignoreAuthCheck) && string.IsNullOrEmpty(signature))
             {
                 response.Message = "Missing signature header value";
                 return new StandardResponseObjectResult(response, StatusCodes.Status401Unauthorized);
@@ -55,7 +57,7 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
             string payload = JsonConvert.SerializeObject(body);
 
             //check body and signature to match against secret
-            var isGitHubPushEventAllowed = _gitHubAuthentication.IsValidGitHubWebHookRequest(payload, signature);
+            var isGitHubPushEventAllowed = _ignoreAuthCheck ? true : _gitHubAuthentication.IsValidGitHubWebHookRequest(payload, signature);
 
             //if we passed the secret check, then continue
             if (!isGitHubPushEventAllowed)
@@ -65,7 +67,9 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
                 return new StandardResponseObjectResult(response, StatusCodes.Status401Unauthorized);
             }
 
-           GitHubPostViewModel vm = this.BuildWorkingViewModel(body);
+            GitHubPostViewModel vm = this.BuildWorkingViewModel(body);
+
+            return null;
 
         }
 
@@ -85,20 +89,24 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
         {
             GitHubPostViewModel vm = new GitHubPostViewModel();
 
-            vm.action = (string)body["action"];
-            vm.url = (string)body["url"];
-            vm.number = (int)body["number"];
-            vm.title = (string)body["title"];
-            vm.state = (string)body["state"];
-            vm.user = (string)body["user"]["login"];
-            vm.body = (string)body["body"];
-            vm.repo_fullname = (string)body["repository"]["full_name"];     
-            vm.repo_url = (string)body["repository"]["html_url"];
+            vm.action = body["action"] != null ? (string)body["actions"] : string.Empty;
+            vm.url = body["issue"]["html_url"] != null ? (string)body["issue"]["html_url"] : string.Empty;
+            vm.number = body["issue"]["number"] != null ? (int)body["issue"]["number"] : -1;
+            vm.title = body["issue"]["title"] != null ? (string)body["issue"]["title"] : string.Empty;
+            vm.state = body["issue"]["state"] != null ? (string)body["issue"]["state"] : string.Empty;
+            vm.user = body["issue"]["user"]["login"] != null ? (string)body["issue"]["user"]["login"] : string.Empty;
+            vm.body = body["issue"]["body"] != null ? (string)body["issue"]["body"] : string.Empty;
+            vm.repo_fullname = body["repository"]["full_name"] != null ? (string)body["repository"]["full_name"] : string.Empty;  
+            vm.repo_url = body["repository"]["html_url"] != null ? (string)body["repository"]["html_url"] : string.Empty;
 
-            string[] split = vm.repo_fullname.Split('/');
+            if (! String.IsNullOrEmpty(vm.repo_fullname))
+            {
+                string[] split = vm.repo_fullname.Split('/');
 
-            vm.organization = split[0];
-            vm.repository = split[1];
+                vm.organization = split[0];
+                vm.repository = split[1];
+            }
+           
 
             return vm;
         }

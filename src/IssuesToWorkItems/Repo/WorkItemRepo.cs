@@ -16,17 +16,20 @@ namespace IssuesToWorkItems.Repo
 {
     public class WorkItemRepo
     {
-        private IOptions<AppSettings> _appSettings;
+        private IOptions<AppSettings> _options;       
 
-        public WorkItemRepo(IOptions<AppSettings> appSettings)
+        public WorkItemRepo(IOptions<AppSettings> options)
         {
-            _appSettings = appSettings;
+            _options = options;            
         }
 
-        public WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm)
+        public WorkItem FindWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm)
         {
-            string pat = vm.pat;
-            Uri baseUri = new Uri("https://dev.azure.com/" + vm.organization);
+            string pat = _options.Value.ADO_Pat;
+            string org = _options.Value.ADO_Org;
+            string project = _options.Value.ADO_Project;           
+
+            Uri baseUri = new Uri("https://dev.azure.com/" + org);
 
             VssCredentials clientCredentials = new VssCredentials(new VssBasicCredential("username", pat));
             VssConnection connection = new VssConnection(baseUri, clientCredentials);
@@ -41,12 +44,78 @@ namespace IssuesToWorkItems.Repo
 
             try
             {
-                var queryResults = client.QueryByWiqlAsync(wiql, vm.project).Result;
-                
-                result = (queryResults == null) ? client.CreateWorkItemAsync(patchDocument, vm.project, vm.type).Result : null;
-                              
+                WorkItemQueryResult queryResult = client.QueryByWiqlAsync(wiql, project).Result;
+                WorkItemReference workItem = null;
+
+                workItem = queryResult.WorkItems.Count() > 0 ? queryResult.WorkItems.First() : null;
+
+                result = client.GetWorkItemAsync(workItem.Id, null, null, WorkItemExpand.All).Result;
             }
-            catch (Exception ex)
+            catch (Exception)
+            {
+                result = null;
+            }
+            finally
+            {
+                clientCredentials = null;
+                connection = null;
+                client = null;
+            }
+
+            return result;
+        }
+
+        public WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm)
+        {
+            string pat = _options.Value.ADO_Pat;
+            string org = _options.Value.ADO_Org;
+            string project = _options.Value.ADO_Project;
+            string wit = _options.Value.ADO_DefaultWIT;
+          
+            Uri baseUri = new Uri("https://dev.azure.com/" + org);
+
+            VssCredentials clientCredentials = new VssCredentials(new VssBasicCredential("username", pat));
+            VssConnection connection = new VssConnection(baseUri, clientCredentials);
+
+            WorkItemTrackingHttpClient client = connection.GetClient<WorkItemTrackingHttpClient>();
+            WorkItem result = null;            
+
+            try
+            {
+                WorkItem item = client.CreateWorkItemAsync(patchDocument, project, wit).Result;
+            }
+            catch (Exception)
+            {
+                result = null;
+            }
+            finally
+            {
+                clientCredentials = null;
+                connection = null;
+                client = null;
+            }
+
+            return result;
+        }
+
+        public WorkItem UpdateWorkItem(int id, JsonPatchDocument patchDocument, GitHubPostViewModel vm)
+        {
+            string pat = _options.Value.ADO_Pat;
+            string org = _options.Value.ADO_Org;           
+
+            Uri baseUri = new Uri("https://dev.azure.com/" + org);
+
+            VssCredentials clientCredentials = new VssCredentials(new VssBasicCredential("username", pat));
+            VssConnection connection = new VssConnection(baseUri, clientCredentials);
+
+            WorkItemTrackingHttpClient client = connection.GetClient<WorkItemTrackingHttpClient>();
+            WorkItem result = null;
+
+            try
+            {
+                WorkItem item = client.UpdateWorkItemAsync(patchDocument, id).Result;
+            }
+            catch (Exception)
             {
                 result = null;
             }

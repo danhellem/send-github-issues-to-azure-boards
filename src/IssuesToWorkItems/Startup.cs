@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SyncGitHubIssuesToWorkItems.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using SyncGitHubIssuesToWorkItems.Repo;
 
 namespace SyncGitHubIssuesToWorkItems
 {
@@ -51,6 +52,7 @@ namespace SyncGitHubIssuesToWorkItems
             });
 
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddSwaggerGen(c =>
@@ -66,6 +68,8 @@ namespace SyncGitHubIssuesToWorkItems
             {
                 // Staging/Production configuration
             }
+
+            services.AddTransient<IGitHubAuthentication, GitHubAuthentication>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
