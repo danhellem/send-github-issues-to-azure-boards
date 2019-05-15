@@ -14,5 +14,6 @@ namespace SyncGitHubIssuesToWorkItems.Models
         public string ADO_Org { get; set; }
         public string ADO_Project { get; set; }
         public string ADO_DefaultWIT { get; set; }
+        public string ADO_CloseState { get; set; }
     }
 }

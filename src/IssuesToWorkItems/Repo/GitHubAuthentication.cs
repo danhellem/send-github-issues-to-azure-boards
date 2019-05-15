@@ -19,7 +19,7 @@ namespace SyncGitHubIssuesToWorkItems.Repo
         public GitHubAuthentication(IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings;
-            _secret = _appSettings.Value.GitHubSecret;
+            _secret = _appSettings.Value.GitHub_Secret;
         }
 
         /// <summary>

@@ -14,20 +14,20 @@ using SyncGitHubIssuesToWorkItems.ViewModels;
 
 namespace IssuesToWorkItems.Repo
 {
-    public class WorkItemRepo
+    public class WorkItemsRepo : IWorkItemsRepo
     {
         private IOptions<AppSettings> _options;       
 
-        public WorkItemRepo(IOptions<AppSettings> options)
+        public WorkItemsRepo(IOptions<AppSettings> options)
         {
             _options = options;            
         }
 
-        public WorkItem FindWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm)
+        public WorkItem FindWorkItem(int number)
         {
             string pat = _options.Value.ADO_Pat;
             string org = _options.Value.ADO_Org;
-            string project = _options.Value.ADO_Project;           
+            string project = _options.Value.ADO_Project;               
 
             Uri baseUri = new Uri("https://dev.azure.com/" + org);
 
@@ -39,7 +39,7 @@ namespace IssuesToWorkItems.Repo
 
             Wiql wiql = new Wiql()
             {
-                Query = "SELELCT [System.Id] FROM workitems [System.TeamProject] = @project AND [System.Title] CONTAINS WORDS '(GitHub Issue #114)' AND [System.Tags] CONTAINS 'GitHub Issue'"
+                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS WORDS 'GitHub Issue #" + number + "' AND [System.Tags] CONTAINS 'GitHub Issue'"
             };
 
             try
@@ -49,9 +49,9 @@ namespace IssuesToWorkItems.Repo
 
                 workItem = queryResult.WorkItems.Count() > 0 ? queryResult.WorkItems.First() : null;
 
-                result = client.GetWorkItemAsync(workItem.Id, null, null, WorkItemExpand.All).Result;
+                result = workItem != null ? client.GetWorkItemAsync(workItem.Id, null, null, WorkItemExpand.All).Result : null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 result = null;
             }
@@ -113,7 +113,7 @@ namespace IssuesToWorkItems.Repo
 
             try
             {
-                WorkItem item = client.UpdateWorkItemAsync(patchDocument, id).Result;
+                result = client.UpdateWorkItemAsync(patchDocument, id).Result;
             }
             catch (Exception)
             {
@@ -128,5 +128,12 @@ namespace IssuesToWorkItems.Repo
 
             return result;
         }
+    }
+
+    public interface IWorkItemsRepo
+    {
+        WorkItem FindWorkItem(int number);
+        WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm);
+        WorkItem UpdateWorkItem(int id, JsonPatchDocument patchDocument, GitHubPostViewModel vm);
     }
 }

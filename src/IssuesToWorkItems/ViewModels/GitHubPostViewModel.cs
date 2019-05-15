@@ -16,5 +16,7 @@ namespace SyncGitHubIssuesToWorkItems.ViewModels
         public string body { get; set; } = string.Empty;
         public string repo_fullname { get; set; } = string.Empty;
         public string repo_url { get; set; } = string.Empty;
+
+        public DateTime? closed_at { get; set; } = null;
     }
 }
