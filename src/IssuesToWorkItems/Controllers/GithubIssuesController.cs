@@ -132,6 +132,24 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
             }
 
             //update work item (closed back to open, comment, change)
+            if (workItem != null && vm.action.Equals("created") && (!String.IsNullOrEmpty(vm.comment)))
+            {               
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.History",
+                        Value = "<a href=\"" + vm.comment_url + "\" target=\"_new\">GitHub Comment Added</a></br></br>" + vm.comment
+                    });
+
+                WorkItem updateResult = _workItemsRepo.UpdateWorkItem((int)workItem.Id, patchDocument, vm);
+
+                response.Message = "Comment successfully appended to existing work item";
+                response.Success = true;
+                response.Value = updateResult;
+
+                return new StandardResponseObjectResult(response, StatusCodes.Status200OK);               
+            }
 
             //close work item
             if (workItem != null && vm.action.Equals("closed"))
@@ -173,17 +191,17 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
 
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        //// PUT api/values/5
+        //[HttpPut("{id}")]
+        //public void Put(int id, [FromBody] string value)
+        //{
+        //}
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        //// DELETE api/values/5
+        //[HttpDelete("{id}")]
+        //public void Delete(int id)
+        //{
+        //}
 
         private GitHubPostViewModel BuildWorkingViewModel(JObject body)
         {
@@ -199,6 +217,8 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
             vm.repo_fullname = body["repository"]["full_name"] != null ? (string)body["repository"]["full_name"] : string.Empty;  
             vm.repo_url = body["repository"]["html_url"] != null ? (string)body["repository"]["html_url"] : string.Empty;
             vm.closed_at = body["issue"]["closed_at"] != null ? (DateTime?)body["issue"]["closed_at"] : null;
+            vm.comment = body["comment"]["body"] != null ? (string)body["comment"]["body"] : string.Empty;
+            vm.comment_url = body["comment"]["html_url"] != null ? (string)body["comment"]["html_url"] : string.Empty;
 
             if (! String.IsNullOrEmpty(vm.repo_fullname))
             {
