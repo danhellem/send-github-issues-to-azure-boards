@@ -24,7 +24,7 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
     [ApiController]
     public class GitHubIssuesController : ControllerBase
     {
-        private bool _ignoreAuthCheck = true;
+        private bool _ignoreAuthCheck = false;
 
         private IOptions<AppSettings> _appSettings;
         private IGitHubAuthentication _gitHubAuthentication;
@@ -87,16 +87,25 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
                     {
                         Operation = Operation.Add,
                         Path = "/fields/System.Title",
-                        Value = "GitHub Issue #" + vm.number.ToString()
+                        Value = vm.title + " (GitHub Issue #" + vm.number.ToString() + ")"
                     }
                 );
+
+                patchDocument.Add(
+                   new JsonPatchOperation()
+                   {
+                       Operation = Operation.Add,
+                       Path = "/fields/System.Description",
+                       Value = vm.body
+                   }
+               );
 
                 patchDocument.Add(
                     new JsonPatchOperation()
                     {
                         Operation = Operation.Add,
                         Path = "/fields/System.Tags",
-                        Value = "GitHub Issue"
+                        Value = "GitHub Issue; " + vm.repo_name
                     }
                 );
 
@@ -107,7 +116,7 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
                         Path = "/fields/System.History",
                         Value = "GitHub <a href=\"" + vm.url + "\" target=\"_new\">issue #" + vm.number + "</a> created in <a href=\"" + vm.repo_url + "\" target=\"_new\">" + vm.repo_fullname + "</a>"
                     }
-                );
+                );                
 
                 patchDocument.Add(
                     new JsonPatchOperation()
@@ -133,14 +142,20 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
 
             //update work item (closed back to open, comment, change)
             if (workItem != null && vm.action.Equals("created") && (!String.IsNullOrEmpty(vm.comment)))
-            {               
-                patchDocument.Add(
-                    new JsonPatchOperation()
-                    {
-                        Operation = Operation.Add,
-                        Path = "/fields/System.History",
-                        Value = "<a href=\"" + vm.comment_url + "\" target=\"_new\">GitHub Comment Added</a></br></br>" + vm.comment
-                    });
+            { 
+                //todo: deal with other updates like assigned to, tags, description
+                
+                //add comment is there is one
+                if (!String.IsNullOrEmpty(vm.comment))
+                {
+                    patchDocument.Add(
+                        new JsonPatchOperation()
+                        {
+                            Operation = Operation.Add,
+                            Path = "/fields/System.History",
+                            Value = "<a href=\"" + vm.comment_url + "\" target=\"_new\">GitHub Comment Added</a></br></br>" + vm.comment
+                        });
+                }
 
                 WorkItem updateResult = _workItemsRepo.UpdateWorkItem((int)workItem.Id, patchDocument, vm);
 
@@ -176,6 +191,18 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
                           Value = "GitHub <a href=\"" + vm.url + "\" target=\"_new\">issue #" + vm.number + "</a> was closed on " + closedDate + " at " + closedTime
                       }
                     );
+                }
+
+                //add comment is there is one
+                if (!String.IsNullOrEmpty(vm.comment))
+                {
+                    patchDocument.Add(
+                        new JsonPatchOperation()
+                        {
+                            Operation = Operation.Add,
+                            Path = "/fields/System.History",
+                            Value = "<a href=\"" + vm.comment_url + "\" target=\"_new\">GitHub Comment Added</a></br></br>" + vm.comment
+                        });                 
                 }
 
                 WorkItem updateResult = _workItemsRepo.UpdateWorkItem((int)workItem.Id, patchDocument, vm);
@@ -214,11 +241,16 @@ namespace SyncGitHubIssuesToWorkItems.Controllers
             vm.state = body["issue"]["state"] != null ? (string)body["issue"]["state"] : string.Empty;
             vm.user = body["issue"]["user"]["login"] != null ? (string)body["issue"]["user"]["login"] : string.Empty;
             vm.body = body["issue"]["body"] != null ? (string)body["issue"]["body"] : string.Empty;
-            vm.repo_fullname = body["repository"]["full_name"] != null ? (string)body["repository"]["full_name"] : string.Empty;  
+            vm.repo_fullname = body["repository"]["full_name"] != null ? (string)body["repository"]["full_name"] : string.Empty;
+            vm.repo_name = body["repository"]["name"] != null ? (string)body["repository"]["name"] : string.Empty;
             vm.repo_url = body["repository"]["html_url"] != null ? (string)body["repository"]["html_url"] : string.Empty;
             vm.closed_at = body["issue"]["closed_at"] != null ? (DateTime?)body["issue"]["closed_at"] : null;
-            vm.comment = body["comment"]["body"] != null ? (string)body["comment"]["body"] : string.Empty;
-            vm.comment_url = body["comment"]["html_url"] != null ? (string)body["comment"]["html_url"] : string.Empty;
+
+            if (body["comment"] != null)
+            { 
+                vm.comment = body["comment"]["body"] != null ? (string)body["comment"]["body"] : string.Empty;
+                vm.comment_url = body["comment"]["html_url"] != null ? (string)body["comment"]["html_url"] : string.Empty;
+            }
 
             if (! String.IsNullOrEmpty(vm.repo_fullname))
             {

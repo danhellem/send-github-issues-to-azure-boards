@@ -39,7 +39,7 @@ namespace IssuesToWorkItems.Repo
 
             Wiql wiql = new Wiql()
             {
-                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS WORDS 'GitHub Issue #" + number + "' AND [System.Tags] CONTAINS 'GitHub Issue'"
+                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue'"
             };
 
             try
