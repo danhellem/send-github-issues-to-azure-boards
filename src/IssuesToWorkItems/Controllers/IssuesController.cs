@@ -78,12 +78,12 @@ namespace WebHookReciever.Controllers
            
 
             //look to see if work item already exist in ADO
-            WorkItem workItem = _workItemsRepo.FindWorkItem(vm.number);
+            WorkItem workItem = _workItemsRepo.FindWorkItem(vm.number, vm.repo_name);
 
             switch (vm.action)
             {
                 case "opened":
-                    return workItem == null ? this.CreateNew(vm) : new StandardResponseObjectResult("existing work item found", StatusCodes.Status200OK);
+                    return workItem == null ? this.CreateNew(vm) : new StandardResponseObjectResult("existing work item found", StatusCodes.Status201Created);
                 case "edited":
                     return workItem != null ? this.UpdateEdited(vm, workItem) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
                 case "created":
@@ -92,8 +92,10 @@ namespace WebHookReciever.Controllers
                     return workItem != null ? this.ReOpen(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
                 case "closed":
                     return workItem != null ? this.Close(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
+                case "deleted":
+                    return new StandardResponseObjectResult("delete action not implemented", StatusCodes.Status200OK);
                 default:
-                    return new StandardResponseObjectResult("action not found", StatusCodes.Status404NotFound);                    
+                    return new StandardResponseObjectResult("action not found", StatusCodes.Status200OK);                    
             }
         }        
 

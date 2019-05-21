@@ -23,7 +23,7 @@ namespace WebHookReciever.Repo
             _options = options;            
         }
 
-        public WorkItem FindWorkItem(int number)
+        public WorkItem FindWorkItem(int number, string repo)
         {
             string pat = _options.Value.ADO_Pat;
             string org = _options.Value.ADO_Org;
@@ -39,7 +39,7 @@ namespace WebHookReciever.Repo
 
             Wiql wiql = new Wiql()
             {
-                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue'"
+                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" + repo + "'"
             };
 
             try
@@ -132,7 +132,7 @@ namespace WebHookReciever.Repo
 
     public interface IWorkItemsRepo
     {
-        WorkItem FindWorkItem(int number);
+        WorkItem FindWorkItem(int number, string repo);
         WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm);
         WorkItem UpdateWorkItem(int id, JsonPatchDocument patchDocument, GitHubPostViewModel vm);
     }
