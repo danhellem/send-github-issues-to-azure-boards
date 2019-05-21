@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using SyncGitHubIssuesToWorkItems.Models;
-using SyncGitHubIssuesToWorkItems.ViewModels;
+using WebHookReciever.Models;
+using WebHookReciever.ViewModels;
 
-namespace IssuesToWorkItems.Repo
+namespace WebHookReciever.Repo
 {
     public class WorkItemsRepo : IWorkItemsRepo
     {
@@ -51,7 +51,7 @@ namespace IssuesToWorkItems.Repo
 
                 result = workItem != null ? client.GetWorkItemAsync(workItem.Id, null, null, WorkItemExpand.All).Result : null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 result = null;
             }

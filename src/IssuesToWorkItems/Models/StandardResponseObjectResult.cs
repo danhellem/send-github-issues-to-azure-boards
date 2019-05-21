@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SyncGitHubIssuesToWorkItems.Models
+namespace WebHookReciever.Models
 {
     public class StandardResponseObjectResult : ObjectResult
     {

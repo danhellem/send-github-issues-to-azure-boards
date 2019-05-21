@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SyncGitHubIssuesToWorkItems.Models
+namespace WebHookReciever.Models
 {
     public class AppSettings
     {

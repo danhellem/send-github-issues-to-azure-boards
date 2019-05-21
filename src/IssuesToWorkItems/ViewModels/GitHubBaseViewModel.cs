@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SyncGitHubIssuesToWorkItems.ViewModels
+namespace WebHookReciever.ViewModels
 {
     public class GitHubBaseViewModel
     {
