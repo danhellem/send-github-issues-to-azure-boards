@@ -147,7 +147,7 @@ namespace WebHookReciever.Controllers
               {
                   Operation = Operation.Add,
                   Path = "/fields/System.State",
-                  Value = "New"
+                  Value = _appSettings.Value.ADO_NewState
               }
            );
 
