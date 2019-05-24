@@ -82,7 +82,7 @@ namespace WebHookReciever.Repo
 
             try
             {
-                WorkItem item = client.CreateWorkItemAsync(patchDocument, project, wit).Result;
+                result = client.CreateWorkItemAsync(patchDocument, project, wit).Result;
             }
             catch (Exception)
             {

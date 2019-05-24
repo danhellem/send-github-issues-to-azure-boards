@@ -74,11 +74,18 @@ namespace WebHookReciever.Controllers
                 return new StandardResponseObjectResult(response, StatusCodes.Status401Unauthorized);
             }
 
-            GitHubPostViewModel vm = this.BuildWorkingViewModel(body);
-           
+            GitHubPostViewModel vm = this.BuildWorkingViewModel(body);           
 
             //look to see if work item already exist in ADO
             WorkItem workItem = _workItemsRepo.FindWorkItem(vm.number, vm.repo_name);
+
+            // if the work item is empty and the action == created or == edited
+            // that means it did not exist before the webhook was created
+            // so lets go create the work item in ADO and link it
+            if (workItem == null && (vm.action.Equals("created") || vm.action.Equals("edited")))
+            {
+                workItem = this.CreateNewWorkItem(vm);
+            }
 
             switch (vm.action)
             {
@@ -86,7 +93,7 @@ namespace WebHookReciever.Controllers
                     return workItem == null ? this.CreateNew(vm) : new StandardResponseObjectResult("existing work item found", StatusCodes.Status201Created);
                 case "edited":
                     return workItem != null ? this.UpdateEdited(vm, workItem) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
-                case "created":
+                case "created": //comment                      
                     return workItem != null ? this.AppendComment(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
                 case "reopened":
                     return workItem != null ? this.ReOpen(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
@@ -174,6 +181,18 @@ namespace WebHookReciever.Controllers
         private StandardResponseObjectResult CreateNew(GitHubPostViewModel vm)
         {
             ApiResponseViewModel response = new ApiResponseViewModel();
+
+            WorkItem createResult = this.CreateNewWorkItem(vm);
+
+            response.Message = "Successfully created work item";
+            response.Success = true;
+            response.Value = createResult;           
+
+            return new StandardResponseObjectResult(response, StatusCodes.Status200OK);            
+        }
+
+        private WorkItem CreateNewWorkItem(GitHubPostViewModel vm)        {
+            
             JsonPatchDocument patchDocument = new JsonPatchDocument();
 
             patchDocument.Add(
@@ -226,16 +245,12 @@ namespace WebHookReciever.Controllers
             );
 
             WorkItem createResult = _workItemsRepo.CreateWorkItem(patchDocument, vm);
-
-            response.Message = "Successfully created work item";
-            response.Success = true;
-            response.Value = createResult;
-
+           
             patchDocument = null;
 
-            return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
-            
+            return createResult;
         }
+
 
         private StandardResponseObjectResult AppendComment(GitHubPostViewModel vm, int workItemId)
         {
