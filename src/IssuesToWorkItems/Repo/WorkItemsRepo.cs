@@ -128,6 +128,43 @@ namespace WebHookReciever.Repo
 
             return result;
         }
+
+        public WorkItemQueryResult QueryWorkItems()
+        {
+            string pat = _options.Value.ADO_Pat;
+            string org = _options.Value.ADO_Org;
+            string project = _options.Value.ADO_Project;         
+
+            Uri baseUri = new Uri("https://dev.azure.com/" + org);
+
+            VssCredentials clientCredentials = new VssCredentials(new VssBasicCredential("username", pat));
+            VssConnection connection = new VssConnection(baseUri, clientCredentials);
+
+            WorkItemTrackingHttpClient client = connection.GetClient<WorkItemTrackingHttpClient>();
+            WorkItemQueryResult result = null;
+
+            Wiql wiql = new Wiql()
+            {
+                Query = "SELECT [System.Id], [System.Title], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.WorkItemType] = 'Issue' AND [System.State] <> 'Done' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.BoardColumn] = 'To Do'"
+            };
+               
+            try
+            {
+                result = client.QueryByWiqlAsync(wiql, project).Result;
+            }
+            catch (Exception)
+            {
+                result = null;
+            }
+            finally
+            {
+                clientCredentials = null;
+                connection = null;
+                client = null;
+            }
+
+            return result;
+        }
     }
 
     public interface IWorkItemsRepo
@@ -135,5 +172,6 @@ namespace WebHookReciever.Repo
         WorkItem FindWorkItem(int number, string repo);
         WorkItem CreateWorkItem(JsonPatchDocument patchDocument, GitHubPostViewModel vm);
         WorkItem UpdateWorkItem(int id, JsonPatchDocument patchDocument, GitHubPostViewModel vm);
+        WorkItemQueryResult QueryWorkItems();
     }
 }
