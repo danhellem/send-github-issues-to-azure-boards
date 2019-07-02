@@ -37,6 +37,11 @@ Set your web hook events for "Issues" and "Issue Comments"
 
 ![config 2](https://github.com/danhellem/send-github-issues-to-azure-boards/blob/master/images/configure-webhook-2.png "Config 2")
 
+## Something Fun, IoT Project
+We also created a simple Arduino ESP8266 sketch. This sketch will connect to the [GetCount](https://github.com/danhellem/send-github-issues-to-azure-boards/blob/master/src/IssuesToWorkItems/Controllers/WorkItemsController.cs#L39) endpoint that returns a count of issues in the new column on your board. If it does, the ESP8266 will blink, letting you know that new GitHub Issues have been added.
+
+![Blink](https://github.com/danhellem/send-github-issues-to-azure-boards/blob/master/images/blink.jpg "Blink")
+
 ## What is missing
 - Coded in the configuration of New and Completed. Would like to be able to dynamically set this by work item type.
 - Not all updates are being tracked and added into the work item. Description for example or Assigned To.
