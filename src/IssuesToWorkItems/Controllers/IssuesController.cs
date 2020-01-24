@@ -195,6 +195,32 @@ namespace WebHookReciever.Controllers
             
             JsonPatchDocument patchDocument = new JsonPatchDocument();
 
+            string areaPath = _appSettings.Value.ADO_AreaPath;
+            if (!string.IsNullOrEmpty(areaPath))
+            {
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.AreaPath",
+                        Value = areaPath
+                    }
+                );
+            }
+
+            string iterationPath = _appSettings.Value.ADO_IterationPath;
+            if (!string.IsNullOrEmpty(iterationPath))
+            {
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.IterationPath",
+                        Value = iterationPath
+                    }
+                );
+            }
+
             patchDocument.Add(
                 new JsonPatchOperation()
                 {
