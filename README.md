@@ -23,7 +23,9 @@ When you deploy make sure you adjust the appsettings.json to fit your Azure Boar
     "ADO_Project": "<azure devops project name>",
     "ADO_DefaultWIT": "<the work item type you want to create in azure boards. Examples: Issue, User Story>",
     "ADO_CloseState": "<the state on the work item type to close out the work item>",
-    "ADO_NewState": "<the state on the work item type to reopen a work item>"
+    "ADO_NewState": "<the state on the work item type to reopen a work item>",
+    "ADO_AreaPath": "<the area path on the new work item - blank will default>",
+    "ADO_IterationPath": "<the iteration path on the new work item - blank will default>"
   }
 ```
 
