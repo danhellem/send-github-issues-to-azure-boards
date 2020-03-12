@@ -39,7 +39,7 @@ namespace WebHookReciever.Repo
 
             Wiql wiql = new Wiql()
             {
-                Query = "SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" + repo + "'"
+                Query = "SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" + repo + "'"
             };
 
             try
@@ -82,9 +82,9 @@ namespace WebHookReciever.Repo
 
             try
             {
-                result = client.CreateWorkItemAsync(patchDocument, project, wit).Result;
+                result = client.CreateWorkItemAsync(patchDocument, project, wit, false, true).Result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 result = null;
             }
@@ -113,7 +113,7 @@ namespace WebHookReciever.Repo
 
             try
             {
-                result = client.UpdateWorkItemAsync(patchDocument, id).Result;
+                result = client.UpdateWorkItemAsync(patchDocument, id, false, true).Result;
             }
             catch (Exception)
             {

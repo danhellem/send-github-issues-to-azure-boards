@@ -1,16 +1,16 @@
 ﻿{
-  "action": "closed",
+  "action": "opened",
   "issue": {
-    "url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/16",
+    "url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/19",
     "repository_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards",
-    "labels_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/16/labels{/name}",
-    "comments_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/16/comments",
-    "events_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/16/events",
-    "html_url": "https://github.com/danhellem/send-github-issues-to-azure-boards/issues/16",
-    "id": 580121486,
-    "node_id": "MDU6SXNzdWU1ODAxMjE0ODY=",
-    "number": 16,
-    "title": "Handle labeled action",
+    "labels_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/19/labels{/name}",
+    "comments_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/19/comments",
+    "events_url": "https://api.github.com/repos/danhellem/send-github-issues-to-azure-boards/issues/19/events",
+    "html_url": "https://github.com/danhellem/send-github-issues-to-azure-boards/issues/19",
+    "id": 580215672,
+    "node_id": "MDU6SXNzdWU1ODAyMTU2NzI=",
+    "number": 19,
+    "title": "Handle create label before submit button is clicked",
     "user": {
       "login": "danhellem",
       "id": 10525048,
@@ -42,57 +42,19 @@
         "description": "New feature or request"
       }
     ],
-    "state": "closed",
+    "state": "open",
     "locked": false,
-    "assignee": {
-      "login": "danhellem",
-      "id": 10525048,
-      "node_id": "MDQ6VXNlcjEwNTI1MDQ4",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/10525048?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/danhellem",
-      "html_url": "https://github.com/danhellem",
-      "followers_url": "https://api.github.com/users/danhellem/followers",
-      "following_url": "https://api.github.com/users/danhellem/following{/other_user}",
-      "gists_url": "https://api.github.com/users/danhellem/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/danhellem/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/danhellem/subscriptions",
-      "organizations_url": "https://api.github.com/users/danhellem/orgs",
-      "repos_url": "https://api.github.com/users/danhellem/repos",
-      "events_url": "https://api.github.com/users/danhellem/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/danhellem/received_events",
-      "type": "User",
-      "site_admin": true
-    },
+    "assignee": null,
     "assignees": [
-      {
-        "login": "danhellem",
-        "id": 10525048,
-        "node_id": "MDQ6VXNlcjEwNTI1MDQ4",
-        "avatar_url": "https://avatars2.githubusercontent.com/u/10525048?v=4",
-        "gravatar_id": "",
-        "url": "https://api.github.com/users/danhellem",
-        "html_url": "https://github.com/danhellem",
-        "followers_url": "https://api.github.com/users/danhellem/followers",
-        "following_url": "https://api.github.com/users/danhellem/following{/other_user}",
-        "gists_url": "https://api.github.com/users/danhellem/gists{/gist_id}",
-        "starred_url": "https://api.github.com/users/danhellem/starred{/owner}{/repo}",
-        "subscriptions_url": "https://api.github.com/users/danhellem/subscriptions",
-        "organizations_url": "https://api.github.com/users/danhellem/orgs",
-        "repos_url": "https://api.github.com/users/danhellem/repos",
-        "events_url": "https://api.github.com/users/danhellem/events{/privacy}",
-        "received_events_url": "https://api.github.com/users/danhellem/received_events",
-        "type": "User",
-        "site_admin": true
-      }
+
     ],
     "milestone": null,
     "comments": 0,
-    "created_at": "2020-03-12T18:02:21Z",
-    "updated_at": "2020-03-12T20:51:17Z",
-    "closed_at": "2020-03-12T20:51:17Z",
+    "created_at": "2020-03-12T20:59:46Z",
+    "updated_at": "2020-03-12T20:59:46Z",
+    "closed_at": null,
     "author_association": "OWNER",
-    "body": "If the user adds a label from the issue, then add that same label to a work item"
+    "body": "Need to handle when an issue is created, label is added and then the submit button is clicked"
   },
   "repository": {
     "id": 183228865,
@@ -181,7 +143,7 @@
     "mirror_url": null,
     "archived": false,
     "disabled": false,
-    "open_issues_count": 2,
+    "open_issues_count": 4,
     "license": {
       "key": "mit",
       "name": "MIT License",
@@ -190,7 +152,7 @@
       "node_id": "MDc6TGljZW5zZTEz"
     },
     "forks": 3,
-    "open_issues": 2,
+    "open_issues": 4,
     "watchers": 10,
     "default_branch": "master"
   },
