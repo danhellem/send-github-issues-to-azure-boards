@@ -19,6 +19,7 @@ namespace WebHookReciever.ViewModels
         public string repo_name { get; set; } = string.Empty;
         public string comment { get; set; } = string.Empty;
         public string comment_url { get; set; } = string.Empty;
+        public string label { get; set; } = string.Empty;
 
         public DateTime? closed_at { get; set; } = null;
     }

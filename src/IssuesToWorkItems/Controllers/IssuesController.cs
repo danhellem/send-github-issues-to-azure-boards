@@ -79,12 +79,11 @@ namespace WebHookReciever.Controllers
             //look to see if work item already exist in ADO
             WorkItem workItem = _workItemsRepo.FindWorkItem(vm.number, vm.repo_name);
 
-            // if the work item is empty and the action == created or == edited
-            // that means it did not exist before the webhook was created
+            // if the work item is empty that means it did not exist before the webhook was created
             // so lets go create the work item in ADO and link it
-            if (workItem == null && (vm.action.Equals("created") || vm.action.Equals("edited")))
+            if (workItem == null)
             {
-                workItem = this.CreateNewWorkItem(vm);
+                workItem = this.CreateNewWorkItem(vm);                
             }
 
             switch (vm.action)
@@ -99,6 +98,10 @@ namespace WebHookReciever.Controllers
                     return workItem != null ? this.ReOpen(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
                 case "closed":
                     return workItem != null ? this.Close(vm, (int)workItem.Id) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
+                case "assigned":                   
+                    return new StandardResponseObjectResult("assigned action not implemented", StatusCodes.Status200OK);
+                case "labeled":
+                    return workItem != null ? this.AddLabel(vm, workItem) : new StandardResponseObjectResult("work item not found", StatusCodes.Status200OK);
                 case "deleted":
                     return new StandardResponseObjectResult("delete action not implemented", StatusCodes.Status200OK);
                 default:
@@ -121,27 +124,42 @@ namespace WebHookReciever.Controllers
                         Path = "/fields/System.Title",
                         Value = vm.title + " (GitHub Issue #" + vm.number.ToString() + ")"
                     });
+            }
 
+
+            // if description changed
+            if (! workItem.Fields["System.Description"].Equals(vm.body))            { 
+               
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.Description",
+                        Value = vm.body
+                    }
+                );
+            }
+
+            // if nothing in the patch document, then don't update
+            if (patchDocument.Count > 0)
+            { 
                 WorkItem updateResult = _workItemsRepo.UpdateWorkItem((int)workItem.Id, patchDocument, vm);
 
-                response.Message = "Title successfully updated";
+                response.Message = "Work item successfully updated";
                 response.Success = true;
                 response.Value = updateResult;
 
                 patchDocument = null;
-
-                return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
             }
             else
             {
-                response.Message = "Nothing updated";
+                response.Message = "No changes to be made";
                 response.Success = true;
                 response.Value = null;
-
-                patchDocument = null;
-
-                return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
             }
+
+            return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
+                     
         }
 
         private StandardResponseObjectResult ReOpen(GitHubPostViewModel vm, int workItemId)
@@ -250,8 +268,7 @@ namespace WebHookReciever.Controllers
 
             return createResult;
         }
-
-
+        
         private StandardResponseObjectResult AppendComment(GitHubPostViewModel vm, int workItemId)
         {
             ApiResponseViewModel response = new ApiResponseViewModel();
@@ -327,6 +344,40 @@ namespace WebHookReciever.Controllers
             return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
         }
 
+        private StandardResponseObjectResult AddLabel(GitHubPostViewModel vm, WorkItem workItem)
+        {
+            ApiResponseViewModel response = new ApiResponseViewModel();
+            JsonPatchDocument patchDocument = new JsonPatchDocument();
+
+            if (! workItem.Fields["System.Tags"].ToString().Contains(vm.label))
+            { 
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.Tags",
+                        Value = workItem.Fields["System.Tags"].ToString() + ", " + vm.label
+                    }
+                );
+
+                WorkItem updateResult = _workItemsRepo.UpdateWorkItem(Convert.ToInt32(workItem.Id), patchDocument, vm);
+
+                response.Message = "Label successfully update on work item";
+                response.Success = true;
+                response.Value = updateResult;
+            }
+            else
+            {
+                response.Message = "Tag already exists on the work item";
+                response.Success = true;
+                response.Value = null;
+            }
+
+            patchDocument = null;
+
+            return new StandardResponseObjectResult(response, StatusCodes.Status200OK);
+        }
+
         private GitHubPostViewModel BuildWorkingViewModel(JObject body)
         {
             GitHubPostViewModel vm = new GitHubPostViewModel();
@@ -342,6 +393,11 @@ namespace WebHookReciever.Controllers
             vm.repo_name = body["repository"]["name"] != null ? (string)body["repository"]["name"] : string.Empty;
             vm.repo_url = body["repository"]["html_url"] != null ? (string)body["repository"]["html_url"] : string.Empty;
             vm.closed_at = body["issue"]["closed_at"] != null ? (DateTime?)body["issue"]["closed_at"] : null;
+
+            if (body["label"] != null)
+            {
+                vm.label = body["label"]["name"] != null ? (string)body["label"]["name"] : string.Empty;
+            }            
 
             if (body["comment"] != null)
             { 
