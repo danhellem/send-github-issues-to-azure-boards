@@ -1,27 +1,34 @@
-name: .NET Core CI Build
-
+name: Build Project
+ 
 on:
   pull_request:
     branches:
     - master
-
+ 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+ 
+    runs-on: windows-latest
+ 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v1
+      name: Checkout Code
+     
+    - name: Setup MSBuild Path
+      uses: danhellem/Setup-MSBuild@v1
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+     
+    - name: Restore NuGet Packages
+      run: nuget restore send-github-issues-to-azure-boards.sln
+ 
+    - name: Build and Publish Web App
+      run: msbuild send-github-issues-to-azure-boards.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile
+ 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1.0.0
       with:
-        dotnet-version: 3.1.101
-    
-    - name: Restore with dotnet
-      run: dotnet restore 
-    
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-      
-    - name: Test with dotnet
-      run: dotnet test --configuration Release
+        name: published_webapp
+        path: bin\Release\Publish
+
