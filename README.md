@@ -1,3 +1,5 @@
+![Build Project](https://github.com/danhellem/send-github-issues-to-azure-boards/workflows/Build%20Project/badge.svg)
+
 # send-github-issues-to-azure-boards
 Have lots of GitHub repos you track? Use boards in Azure DevOps to track your work? Wouldn't it be great if you could consilidate all the issues that people post into a single Azure DevOps Board?
 
