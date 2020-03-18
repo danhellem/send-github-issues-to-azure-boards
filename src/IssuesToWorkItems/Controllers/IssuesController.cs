@@ -212,7 +212,7 @@ namespace WebHookReciever.Controllers
         private WorkItem CreateNewWorkItem(GitHubPostViewModel vm)        {
             
             JsonPatchDocument patchDocument = new JsonPatchDocument();
-
+            
             patchDocument.Add(
                 new JsonPatchOperation()
                 {
@@ -239,6 +239,20 @@ namespace WebHookReciever.Controllers
                     Value = "GitHub Issue; " + vm.repo_name
                 }
             );
+
+            string areaPath = _appSettings.Value.ADO_AreaPath;
+
+            if (!string.IsNullOrEmpty(areaPath))
+            {
+                patchDocument.Add(
+                    new JsonPatchOperation()
+                    {
+                        Operation = Operation.Add,
+                        Path = "/fields/System.AreaPath",
+                        Value = areaPath
+                    }
+                );
+            }
 
             patchDocument.Add(
                 new JsonPatchOperation()
