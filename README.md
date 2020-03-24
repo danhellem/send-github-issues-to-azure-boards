@@ -1,3 +1,7 @@
+> :warning: Deprecating this project in place of this [GitHub Action](https://github.com/danhellem/github-actions-issue-to-work-item)
+
+<br/><br/>
+
 ![Build Project](https://github.com/danhellem/send-github-issues-to-azure-boards/workflows/Build%20Project/badge.svg)
 
 # send-github-issues-to-azure-boards
